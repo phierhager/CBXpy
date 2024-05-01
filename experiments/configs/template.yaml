@@ -1,0 +1,96 @@
+# all numerical values can have a range and and step argument
+# only name_f can have all as argument or a specific function
+# TODO: thorough testing of possible yaml configurations
+
+defaults: &defaults
+  name_f: all
+
+name: Test 1
+
+selected_dynamics:
+  - cbo
+
+config_dynamics:
+  particle_dynamic: 
+    &particle_dynamic
+    <<: *defaults
+    f_dim: 1D
+    check_f_dims: true
+    x: null
+    x_min: 
+      range: [-1.0, -0.8]
+      step: 0.1
+    x_max:
+      range: [0.8, 1.0]
+      step: 0.1
+    M: 1
+    N: 20
+    d: 3
+    max_it: 1000
+    term_criteria: null
+    track_args: 
+      names:
+        - update_norm
+        - energy
+        - x
+        - consensus
+        - drift 
+    verbosity: 1
+    copy: null
+    norm: null
+    normal: null
+    post_process: null
+
+  cbx:
+    &cbx
+    <<: *particle_dynamic
+    noise: isotropic
+    batch_args: null
+    dt: 0.01
+    alpha: 1.0
+    sigma: 5.1
+    lamda: 1.0
+    correction: no_correction
+    correction_eps: 0.001
+    compute_consensus: null
+
+  cbo: 
+    &cbo
+    <<: *cbx
+
+  qcbo:
+    &qcbo
+    <<: *cbo
+
+  cbo_memory:
+    &cbo_memory
+    <<: *cbx
+    lamda_memory: 0.4
+    sigma_memory: 0.1
+
+  cbs:
+    &cbs
+    <<: *cbx
+    mode: sampling
+
+  polarcbo:
+    &polarcbo
+    <<: *cbo
+    kernel: gaussian
+    kappa: 1.0
+    kernel_factor_mode: alpha
+    compute_consensus: null
+
+  pso:
+    &pso
+    <<: *particle_dynamic
+    m: 0.001
+    gamma: null
+    lamda_memory: 0.4
+    sigma_memory: null
+
+config_opt:
+  sched: 
+    factor: 1.02
+    maximum: 1_000_000_000
+  print_it: None
