@@ -25,7 +25,7 @@ def dispatch_dynamics(dyn_name):
         return CBS
     elif dyn_name == "polar_cbo":
         return PolarCBO
-    elif dyn_name == "q_cbo":
+    elif dyn_name == "qcbo":
         return QCBO
     else:
         raise ValueError("Unknown function name")
