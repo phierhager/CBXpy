@@ -44,7 +44,7 @@ class QCBO(CBO):
                 ),
             )
             # for testing purposes we want to have different noise
-            if kwargs.get("noise") == None
+            if kwargs.get("noise") is None
             else kwargs.get("noise")
         )
 
