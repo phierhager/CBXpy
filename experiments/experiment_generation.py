@@ -1,17 +1,33 @@
 import yaml
-import itertools
+from tqdm.contrib.itertools import product as tqdm_product
 from objective_dispatcher import dispatch_objective, get_available_objectives
 from dynamics_dispatcher import dispatch_dynamics
 from config import ExperimentConfig, ConfigContainerDynamic
+from typing import Any, Generator
 
 
-def load_config(filename: str):
+def load_config(filename: str) -> Any:
+    """Load a configuration file.
+
+    Args:
+        filename (str): The path to the configuration file.
+
+    Returns:
+        Any: The configuration file.
+    """
     with open(filename, "r") as file:
         return yaml.safe_load(file)
 
 
-def range_generator(param_config):  #
-    """Generate values out of range and step"""
+def range_generator(param_config: dict) -> list:  #
+    """Generate values out of range and step.
+
+    Args:
+        param_config (dict): A dictionary containing the range and step.
+
+    Returns:
+        list: A list of values.
+    """
     start, end = param_config["range"]
     step = param_config["step"]
     values = []
@@ -25,10 +41,17 @@ def range_generator(param_config):  #
     return values
 
 
-def _dict_product_generator(d: dict):
-    """Make a cartesian product out of a dict."""
+def _dict_product_generator(d: dict) -> Generator[dict, Any, Any]:
+    """Generate all possible combinations of values in a dictionary.
+
+    Args:
+        d (dict): A dictionary containing the values to combine.
+
+    Yields:
+        dict: A dictionary containing the values of the combinations.
+    """
     keys = d.keys()
-    for combination in itertools.product(
+    for combination in tqdm_product(
         *[v if isinstance(v, list) else [v] for v in d.values()]
     ):
         result = {}
@@ -37,8 +60,15 @@ def _dict_product_generator(d: dict):
         yield result
 
 
-def _generate_configs_dynamics(config_dynamics: dict):
-    """Create config of dynamic"""
+def _generate_configs_dynamics(config_dynamics: dict) -> dict:
+    """Generate configurations for dynamics.
+
+    Args:
+        config_dynamics (dict): A dictionary containing the dynamics configurations.
+
+    Returns:
+        dict: A dictionary containing the configurations.
+    """
     config = {}
     for cfg_name, value in config_dynamics.items():
         if isinstance(value, dict) and "range" in value and "step" in value:
@@ -46,6 +76,8 @@ def _generate_configs_dynamics(config_dynamics: dict):
         elif cfg_name == "name_f":  # dispatch and parse keyword all for function
             if value == "all":
                 config[cfg_name] = [obj_name for obj_name in get_available_objectives()]
+            elif isinstance(value, list):
+                config[cfg_name] = value
             else:
                 config[cfg_name] = value
         else:
@@ -55,6 +87,14 @@ def _generate_configs_dynamics(config_dynamics: dict):
 
 
 def _get_name_and_config_dynamics(experiment_config: dict) -> list:
+    """Get the name and configuration of dynamics.
+
+    Args:
+        experiment_config (dict): A dictionary containing the experiment configurations.
+
+    Returns:
+        list: A list of tuples containing the name and configuration of dynamics.
+    """
     selected_dynamics = experiment_config["selected_dynamics"]
     return [
         (name_dynamic, experiment_config["config_dynamics"][name_dynamic])
@@ -62,15 +102,23 @@ def _get_name_and_config_dynamics(experiment_config: dict) -> list:
     ]
 
 
-def generate_dynamics_product(experiment_config: dict[str, dict]):
-    """generate dynamics config product"""
+def generate_dynamics_product(
+    experiment_config: dict[str, dict]
+) -> Generator[ConfigContainerDynamic, Any, Any]:
+    """Generate the product of dynamics configurations.
+
+    Args:
+        experiment_config (dict[str, dict]): A dictionary containing the experiment configurations.
+
+    Yields:
+        ConfigContainerDynamic: A container containing the dynamics configurations.
+    """
     dynamics_name_and_cfg = _get_name_and_config_dynamics(experiment_config)
     for name_dynamic, _tmp_config_dynamic in dynamics_name_and_cfg:
         for i, configuration in enumerate(
             _generate_configs_dynamics(_tmp_config_dynamic)
         ):
             name_f = configuration["name_f"]
-            print(configuration["name_f"])
             f = dispatch_objective(name_f)
             configuration.pop("name_f", None)
             dynamic = dispatch_dynamics(name_dynamic)
@@ -85,6 +133,14 @@ def generate_dynamics_product(experiment_config: dict[str, dict]):
 
 
 def create_experiment_config(file_path: str) -> ExperimentConfig:
+    """Create an experiment configuration.
+
+    Args:
+        file_path (str): The path to the configuration file.
+
+    Returns:
+        ExperimentConfig: The experiment configuration.
+    """
     cfg = load_config(file_path)
     config_container_dynamic_gen = generate_dynamics_product(cfg)
     experiment_name = cfg["name"]
