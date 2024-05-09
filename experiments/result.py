@@ -2,9 +2,6 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 import csv
-from objective_dispatcher import dispatch_objective
-import sys
-from typing import Type
 
 
 @dataclass
@@ -60,12 +57,12 @@ class ExperimentResult:
         minimal_f_values_reached = {}
         for result in self.results_dynamic:
             min_i = np.argmin(result.best_f)
-            if not result.name_f in maximal_f_values_reached:
+            if result.name_f not in maximal_f_values_reached:
                 maximal_f_values_reached[result.name_f] = result.best_f[min_i]
             elif maximal_f_values_reached[result.name_f] < result.best_f[min_i]:
                 maximal_f_values_reached[result.name_f] = result.best_f[min_i]
 
-            if not result.name_f in minimal_f_values_reached:
+            if result.name_f not in minimal_f_values_reached:
                 minimal_f_values_reached[result.name_f] = result.best_f[min_i]
             elif minimal_f_values_reached[result.name_f] > result.best_f[min_i]:
                 minimal_f_values_reached[result.name_f] = result.best_f[min_i]

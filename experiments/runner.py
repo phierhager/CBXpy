@@ -1,4 +1,3 @@
-import scipy.optimize
 import cbx.utils
 import cbx.utils.objective_handling
 from config import ExperimentConfig, ConfigContainerDynamic
@@ -103,14 +102,16 @@ class Runner:
                 self.set_starting_positions(
                     config_container_dynamic
                 )  # only if not yet done
-            if not config_container_dynamic.f in self.local_minimum_functions.keys():
+            if config_container_dynamic.f not in self.local_minimum_functions.keys():
                 _prom_f = cbx.utils.objective_handling._promote_objective(
                     config_container_dynamic.f,
                     config_container_dynamic.config_dynamic["f_dim"],
                 )
                 local_min_x_values = np.squeeze(
                     np.apply_along_axis(
-                        lambda x: optimize.fmin(_prom_f, x, disp=False),
+                        lambda x, _prom_f=_prom_f: optimize.fmin(
+                            _prom_f, x, disp=False
+                        ),
                         axis=2,
                         arr=self.starting_positions,
                     )
