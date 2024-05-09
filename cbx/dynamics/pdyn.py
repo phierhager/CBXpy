@@ -5,6 +5,7 @@ from ..scheduler import scheduler, multiply
 from ..utils.termination import max_it_term
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
+from ..utils.postprocessing import DefaultPostProcess
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
@@ -15,25 +16,7 @@ from numpy.lib.stride_tricks import as_strided
 from numpy.random import Generator, MT19937
 from scipy.special import logsumexp as logsumexp_scp
 
-        
-class post_process_default:
-    """
-    Default post processing.
 
-    This function performs some operations on the particles, after the inner step. 
-
-    Parameters:
-        None
-
-    Return:
-        None
-    """
-    def __init__(self, max_thresh: float = 1e8):
-        self.max_thresh = max_thresh
-    
-    def __call__(self, dyn):
-        np.nan_to_num(dyn.x, copy=False, nan=self.max_thresh)
-        dyn.x = np.clip(dyn.x, -self.max_thresh, self.max_thresh)
 
 class ParticleDynamic:
     r"""The base particle dynamic class
@@ -163,7 +146,7 @@ class ParticleDynamic:
         self.init_history(track_args)
         
         # post processing
-        self.post_process = post_process if post_process is not None else post_process_default
+        self.post_process = post_process if post_process is not None else DefaultPostProcess()
 
     def init_x(self, x, M, N, d, x_min, x_max):
         """
