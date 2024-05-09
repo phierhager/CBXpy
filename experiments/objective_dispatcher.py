@@ -25,8 +25,18 @@ from cbx.objectives import (
 )
 
 
-def dispatch_objective(func_name):
-    print(func_name)
+def dispatch_objective(func_name: str) -> object:
+    """Dispatch the objective function based on the name.
+
+    Args:
+        func_name (str): The name of the function.
+
+    Raises:
+        ValueError: If the function name is unknown.
+
+    Returns:
+        object: The objective function.
+    """
     if func_name == "three_hump_camel":
         return three_hump_camel()
     elif func_name == "mccormick":
@@ -77,7 +87,12 @@ def dispatch_objective(func_name):
         raise ValueError("Unknown function name")
 
 
-def get_available_objectives():
+def get_available_objectives() -> list[str]:
+    """Get the available objective functions.
+
+    Returns:
+        list[str]: A list of the available objective functions.
+    """
     return [
         "three_hump_camel",
         "mccormick",
