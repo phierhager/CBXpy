@@ -1,8 +1,10 @@
-from typing import List, Callable
+from __future__ import annotations
+from typing import List, Callable, Any, TYPE_CHECKING
 
 import numpy as np
 
-from ..dynamics import ParticleDynamic
+if TYPE_CHECKING:
+    from ..dynamics import ParticleDynamic
 
 
 class DefaultPostProcess:
@@ -38,3 +40,24 @@ class CompositePostProcess:
     def __call__(self, dyn: ParticleDynamic) -> None:
         for operation in self.operations:
             operation(dyn)
+
+
+
+RESHUFFLE_INTERVAL: int = 50
+class ReshuffleAgentBatches:
+    def __init__(self, reshuffle_interval: int = RESHUFFLE_INTERVAL) -> None:
+        self.reshuffle_interval = reshuffle_interval
+
+    def _reshuffle(self, dyn: ParticleDynamic) -> None:
+        if (dyn.it + 1) % self.reshuffle_interval == 0:
+            x = dyn.x
+            M, N, d = x.shape
+
+            x = x.reshape(-1, d)
+            x = np.random.permutation(x)
+            x = x.reshape(M, N, d)
+
+            dyn.x = x
+
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self._reshuffle(*args, **kwds)
