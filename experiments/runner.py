@@ -10,14 +10,14 @@ import os
 import numpy as np
 from scipy import optimize
 from tqdm import tqdm
-from typing import Callable
+from typing import Callable, Any
 
 
 def timing(method: Callable):
     """Time the execution of a method.
 
     Args:
-        method (_type_): _description_
+        method (Callable): The method to time.
     """
 
     def wrapper(*args, **kw):
@@ -31,8 +31,17 @@ def timing(method: Callable):
 
 
 @timing
-def optimize_wrapper(dynamic: cbx.dynamics.ParticleDynamic, *args, **kwargs):
-    # dynamic.verbosity = 0
+def optimize_wrapper(
+    dynamic: cbx.dynamics.ParticleDynamic, *args, **kwargs
+) -> np.ndarray | Any:
+    """Optimize a dynamic.
+
+    Args:
+        dynamic (cbx.dynamics.ParticleDynamic): The dynamic to optimize.
+
+    Returns:
+        np.ndarray | Any: The result of the optimization.
+    """
     return dynamic.optimize(*args, **kwargs)
 
 
@@ -42,6 +51,12 @@ class Runner:
         experiment_config: ExperimentConfig,
         result_dir: str = "results",
     ) -> None:
+        """Initialize the Runner.
+
+        Args:
+            experiment_config (ExperimentConfig): The experiment configuration.
+            result_dir (str, optional): The directory to save the results. Defaults to "results".
+        """
         self.experiment_config: ExperimentConfig = experiment_config
         self.experiment_result: ExperimentResult = ExperimentResult(
             experiment_config.experiment_name,
@@ -54,7 +69,12 @@ class Runner:
             {}
         )  # will be filled for every funnction calculate nearest local minimum with scipy
 
-    def run_experiment(self):
+    def run_experiment(self) -> ExperimentResult:
+        """Run the experiment.
+
+        Returns:
+            ExperimentResult: The experiment result.
+        """
         results_dynamic = self.run_dynamic_configs()
         self.experiment_result.results_dynamic = results_dynamic
         if self.result_dir is not None:
@@ -68,7 +88,12 @@ class Runner:
             )
         return self.experiment_result
 
-    def run_dynamic_configs(self):
+    def run_dynamic_configs(self) -> list[ResultDynamicRun]:
+        """Run the dynamic configurations.
+
+        Returns:
+            list[ResultDynamicRun]: The results of the dynamic configurations.
+        """
         results_dynamic = []
         opt_dict = self.get_opt_dict()
         for config_container_dynamic in tqdm(
@@ -104,7 +129,16 @@ class Runner:
         self,
         config_container_dynamic: ConfigContainerDynamic,
         opt_dict: dict,
-    ):
+    ) -> ResultDynamicRun:
+        """Run a dynamic configuration.
+
+        Args:
+            config_container_dynamic (ConfigContainerDynamic): The dynamic configuration.
+            opt_dict (dict): The optimization dictionary.
+
+        Returns:
+            ResultDynamicRun: The result of the dynamic configuration.
+        """
         f = config_container_dynamic.f
         config_dynamic = config_container_dynamic.config_dynamic
         config_dynamic.pop("x")
@@ -130,6 +164,11 @@ class Runner:
         )
 
     def set_starting_positions(self, config_container_dynamic: ConfigContainerDynamic):
+        """Set the starting positions.
+
+        Args:
+            config_container_dynamic (ConfigContainerDynamic): The dynamic configuration.
+        """
         shape = (
             config_container_dynamic.config_dynamic["M"],
             config_container_dynamic.config_dynamic["N"],
@@ -141,7 +180,12 @@ class Runner:
             shape,
         )
 
-    def get_opt_dict(self):
+    def get_opt_dict(self) -> dict:
+        """Get the optimization dictionary.
+
+        Returns:
+            dict: The optimization dictionary.
+        """
         _config_opt = self.experiment_config.config_opt
         return {
             "sched": multiply(

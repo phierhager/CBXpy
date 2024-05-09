@@ -10,7 +10,18 @@ from cbx.dynamics import (
 )
 
 
-def dispatch_dynamics(dyn_name):
+def dispatch_dynamics(dyn_name: str) -> object:
+    """Dispatch the dynamics based on the name.
+
+    Args:
+        dyn_name (str): The name of the dynamics.
+
+    Raises:
+        ValueError: If the dynamic name is unknown.
+
+    Returns:
+        object: The dynamics.
+    """
     if dyn_name == "particle_dynamic":
         return ParticleDynamic
     elif dyn_name == "cbx":
@@ -31,7 +42,12 @@ def dispatch_dynamics(dyn_name):
         raise ValueError("Unknown function name")
 
 
-def get_available_dynamics():
+def get_available_dynamics() -> list[str]:
+    """Get the available dynamics.
+
+    Returns:
+        list[str]: A list of available dynamics.
+    """
     return [
         "particle_dynamic",
         "cbx",
