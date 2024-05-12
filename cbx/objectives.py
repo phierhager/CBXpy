@@ -315,8 +315,8 @@ class Himmelblau(cbx_objective):
             ]
         )
 
-        def __str__(self):
-            return "Himmelblau's function"
+    def __str__(self):
+        return "Himmelblau's function"
 
     def apply(self, x):
         x = self.factor * x

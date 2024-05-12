@@ -49,12 +49,10 @@ def get_available_dynamics() -> list[str]:
         list[str]: A list of available dynamics.
     """
     return [
-        "particle_dynamic",
-        "cbx",
         "cbo",
         "cbo_memory",
         "pso",
         "cbs",
         "polar_cbo",
-        "q_cbo",
+        "qcbo",
     ]

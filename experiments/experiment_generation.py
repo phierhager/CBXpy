@@ -1,7 +1,7 @@
 import yaml
 from tqdm.contrib.itertools import product as tqdm_product
 from objective_dispatcher import dispatch_objective, get_available_objectives
-from dynamics_dispatcher import dispatch_dynamics
+from dynamics_dispatcher import dispatch_dynamics, get_available_dynamics
 from config import ExperimentConfig, ConfigContainerDynamic
 from typing import Any, Generator
 
@@ -95,7 +95,10 @@ def _get_name_and_config_dynamics(experiment_config: dict) -> list:
     Returns:
         list: A list of tuples containing the name and configuration of dynamics.
     """
-    selected_dynamics = experiment_config["selected_dynamics"]
+    if experiment_config["selected_dynamics"] == "all":
+        selected_dynamics = [dynamic_name for dynamic_name in get_available_dynamics()]
+    else:
+        selected_dynamics = experiment_config["selected_dynamics"]
     return [
         (name_dynamic, experiment_config["config_dynamics"][name_dynamic])
         for name_dynamic in selected_dynamics

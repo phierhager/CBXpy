@@ -37,6 +37,17 @@ class ResultDynamicRun:
         ]
 
 
+def _preprocessing_row(row: list[str]):
+    """Preprocess a row of strings."""
+
+    return [
+        string.replace("inf", "float('inf')")
+        .replace("-inf", "float('-inf')")
+        .replace("nan", "float('nan')")
+        for string in row
+    ]
+
+
 @dataclass
 class ExperimentResult:
     experiment_name: str
@@ -114,6 +125,7 @@ class ExperimentResult:
                 if experiment_name is None:
                     experiment_name = row[0]
                     config_opt = {}  # Assuming config_opt is not stored in CSV
+                row = _preprocessing_row(row)
                 result_dynamic = ResultDynamicRun(
                     name_dynamic=row[1],
                     name_f=row[2],

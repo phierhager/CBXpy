@@ -102,7 +102,10 @@ class Runner:
                 self.set_starting_positions(
                     config_container_dynamic
                 )  # only if not yet done
-            if config_container_dynamic.f not in self.local_minimum_functions.keys():
+            if (
+                str(config_container_dynamic.f)
+                not in self.local_minimum_functions.keys()
+            ):
                 _prom_f = cbx.utils.objective_handling._promote_objective(
                     config_container_dynamic.f,
                     config_container_dynamic.config_dynamic["f_dim"],
@@ -116,10 +119,14 @@ class Runner:
                         arr=self.starting_positions,
                     )
                 )
-                self.local_minimum_functions[config_container_dynamic.f] = np.squeeze(
-                    np.min(
-                        np.apply_along_axis(_prom_f, axis=2, arr=local_min_x_values),
-                        axis=1,
+                self.local_minimum_functions[str(config_container_dynamic.f)] = (
+                    np.squeeze(
+                        np.min(
+                            np.apply_along_axis(
+                                _prom_f, axis=2, arr=local_min_x_values
+                            ),
+                            axis=1,
+                        )
                     )
                 )
             result = self.run_dynamic_config(config_container_dynamic, opt_dict)
@@ -149,7 +156,7 @@ class Runner:
         time, best_x = optimize_wrapper(dynamic, **opt_dict)  # optimize
         best_f = f(best_x)
         success = np.where(
-            best_f < self.local_minimum_functions[config_container_dynamic.f], 1, 0
+            best_f < self.local_minimum_functions[str(config_container_dynamic.f)], 1, 0
         )
         return ResultDynamicRun(
             name_dynamic=config_container_dynamic.name_dynamic,
@@ -160,7 +167,9 @@ class Runner:
             best_f=best_f,
             best_x=best_x,
             success=success,
-            local_min_f_values=self.local_minimum_functions[config_container_dynamic.f],
+            local_min_f_values=self.local_minimum_functions[
+                str(config_container_dynamic.f)
+            ],
             starting_positions=self.starting_positions,
         )
 
