@@ -9,8 +9,9 @@ algorithms.
 
 import numpy as np
 from .utils.objective_handling import cbx_objective
-    
-#%%
+
+# %%
+
 
 class three_hump_camel(cbx_objective):
     """Three-hump camel function
@@ -31,7 +32,7 @@ class three_hump_camel(cbx_objective):
     >>> obj = three_hump_camel()
     >>> obj(x)
     array([   7.11666667,   82.45      , 2063.91666667])
-    
+
     Visualization
     -------------
 
@@ -58,7 +59,7 @@ class three_hump_camel(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
@@ -69,19 +70,27 @@ class three_hump_camel(cbx_objective):
 
     def __init__(self):
         super().__init__()
-        self.minima = np.array([[0,0]])
+        self.minima = np.array([[0, 0]])
+
+    def __str__(self):
+        return "Three-hump camel function"
 
     def apply(self, x):
-        return 2*x[..., 0]**2 - 1.05 * x[..., 0]**4 + (1/6) * x[..., 0]**6 + x[..., 0]*x[..., 1] + x[..., 1]**2
-
+        return (
+            2 * x[..., 0] ** 2
+            - 1.05 * x[..., 0] ** 4
+            + (1 / 6) * x[..., 0] ** 6
+            + x[..., 0] * x[..., 1]
+            + x[..., 1] ** 2
+        )
 
 
 class McCormick(cbx_objective):
     r"""McCormick's function
-    
+
     McCormick's function is a multimodal function with two global minima at
     :math:`(-0.54719,-1.54719)` and :math:`(1.54719,0.54719)`. The function is defined as
-    
+
 
     .. math::
 
@@ -125,7 +134,7 @@ class McCormick(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(-0.54719,-1.54719, color='orange', marker='x', markersize=10)
@@ -135,8 +144,17 @@ class McCormick(cbx_objective):
         ax1.set_title('Surface plot')
     """
 
+    def __str__(self):
+        return "McCormick's function"
+
     def apply(self, x):
-        return np.sin(x[..., 0] + x[...,1]) + (x[...,0] - x[...,1])**2 - 1.5 * x[...,0] + 2.5*x[...,1] + 1
+        return (
+            np.sin(x[..., 0] + x[..., 1])
+            + (x[..., 0] - x[..., 1]) ** 2
+            - 1.5 * x[..., 0]
+            + 2.5 * x[..., 1]
+            + 1
+        )
 
 
 class Rosenbrock(cbx_objective):
@@ -193,7 +211,7 @@ class Rosenbrock(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(1,1, color='orange', marker='x', markersize=10)
@@ -203,20 +221,22 @@ class Rosenbrock(cbx_objective):
 
     """
 
-    def __init__(self, a=1., b=100.):
+    def __init__(self, a=1.0, b=100.0):
         super().__init__()
         self.a = a
         self.b = b
 
-    def apply(self, x):
-        return (self.a - x[..., 0])**2 + self.b* (x[..., 1] - x[..., 0]**2)**2
+    def __str__(self):
+        return "Rosenbrock's function"
 
+    def apply(self, x):
+        return (self.a - x[..., 0]) ** 2 + self.b * (x[..., 1] - x[..., 0] ** 2) ** 2
 
 
 class Himmelblau(cbx_objective):
     """Himmelblau's function
 
-    Himmelblau's function is a multimodal function with. The function is defined as 
+    Himmelblau's function is a multimodal function with. The function is defined as
 
     .. math::
 
@@ -226,10 +246,10 @@ class Himmelblau(cbx_objective):
 
     Parameters
     ----------
-    factor : float, optional    
+    factor : float, optional
         The factor by which the input is multiplied. The default is 1.0.
 
-        
+
     Global minima
     -------------
     - :math:`f(x,y) = 0` at :math:`(x,y) = (3,2)`
@@ -273,7 +293,7 @@ class Himmelblau(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=15)
@@ -286,11 +306,23 @@ class Himmelblau(cbx_objective):
     def __init__(self, factor=1.0):
         super().__init__()
         self.factor = factor
-        self.minima = np.array([[3,2], [-2.805118,3.131312], [-3.779310,-3.283186], [3.584428,-1.848126]])
-        
+        self.minima = np.array(
+            [
+                [3, 2],
+                [-2.805118, 3.131312],
+                [-3.779310, -3.283186],
+                [3.584428, -1.848126],
+            ]
+        )
+
+    def __str__(self):
+        return "Himmelblau's function"
+
     def apply(self, x):
-        x = self.factor*x
-        return (x[...,0]**2 + x[...,1] - 11)**2 + (x[...,0] + x[...,1]**2 - 7)**2
+        x = self.factor * x
+        return (x[..., 0] ** 2 + x[..., 1] - 11) ** 2 + (
+            x[..., 0] + x[..., 1] ** 2 - 7
+        ) ** 2
 
 
 class Rastrigin(cbx_objective):
@@ -298,12 +330,12 @@ class Rastrigin(cbx_objective):
 
     Rastrigin's function is a multimodal function with a global minima at
     :math:`(0,0)`. The function is originally defined on :math:`\mathbb{R}^2` as
-    
+
     .. math::
 
         f(x,y) = (x^2 + y - 11)^2 + (x + y^2 - 7)^2.
 
-    See `Rastrigin's function <https://en.wikipedia.org/wiki/Rastrigin_function>`_. 
+    See `Rastrigin's function <https://en.wikipedia.org/wiki/Rastrigin_function>`_.
     For our case we employ a shifted version on :math:`\mathbb{R}^d`, where the global minimum is at
     :math:`(b)` and we additonally employ a offset :math:`c`,
 
@@ -317,7 +349,7 @@ class Rastrigin(cbx_objective):
         The first parameter of the function. The default is 0.0.
     c : float, optional
         The second parameter of the function. The default is 0.0.
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -353,7 +385,7 @@ class Rastrigin(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
@@ -363,20 +395,24 @@ class Rastrigin(cbx_objective):
 
     """
 
-    def __init__(self, b=0., c=0.):
+    def __init__(self, b=0.0, c=0.0):
         super().__init__()
         self.b = b
         self.c = c
         self.minima = np.array([[self.b, self.b]])
-        
+
+    def __str__(self):
+        return "Rastrigin's function"
+
     def apply(self, x):
-        return (1/x.shape[-1]) * np.sum((x - self.b)**2 - \
-                10*np.cos(2*np.pi*(x - self.b)) + 10, axis=-1) + self.c
-            
-            
+        return (1 / x.shape[-1]) * np.sum(
+            (x - self.b) ** 2 - 10 * np.cos(2 * np.pi * (x - self.b)) + 10, axis=-1
+        ) + self.c
+
+
 class Rastrigin_multimodal(cbx_objective):
     r"""Multimodal Rastrigin's function
-    
+
     Let :math:`V` be the Rastrigin's function. Then the multimodal Rastrigin's function is defined as
 
     .. math::
@@ -408,20 +444,23 @@ class Rastrigin_multimodal(cbx_objective):
 
     """
 
-    def __init__(self, alpha = None, z = None):
+    def __init__(self, alpha=None, z=None):
         super().__init__()
-        self.alpha = alpha if alpha else [1.]
+        self.alpha = alpha if alpha else [1.0]
         self.z = z if z else np.zeros((len(self.alpha), 1))
 
         self.V = Rastrigin()
         self.minima = self.z
         self.num_terms = len(self.alpha)
-        
+
+    def __str__(self):
+        return "Multimodal Rastrigin's function"
+
     def apply(self, x):
-        y = np.ones(x.shape[0:-1]   )
+        y = np.ones(x.shape[0:-1])
         for i in range(self.num_terms):
-            y *= self.V(self.alpha[i] * (x - self.z[i,:]))
-        return y            
+            y *= self.V(self.alpha[i] * (x - self.z[i, :]))
+        return y
 
 
 class Ackley(cbx_objective):
@@ -429,7 +468,7 @@ class Ackley(cbx_objective):
 
     Ackley's function is a multimodal function with a global minima at
     :math:`(0,0)`. The function is originally defined on :math:`\mathbb{R}^2` as
-    
+
     .. math::
 
         f(x,y) = -20 \exp \left( -b \sqrt{\frac{1}{2} (x^2 + y^2)} \right) - \exp \left( \frac{1}{2} (\cos(c x) + \cos(c y)) \right) + a + e
@@ -444,7 +483,7 @@ class Ackley(cbx_objective):
         The default is 0.2.
     c : float, optional
         The default is 2*np.pi.
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -480,7 +519,7 @@ class Ackley(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
@@ -489,19 +528,22 @@ class Ackley(cbx_objective):
         ax1.set_title('Surface plot')
     """
 
-    def __init__(self, a=20., b=0.2, c=2*np.pi):
+    def __init__(self, a=20.0, b=0.2, c=2 * np.pi):
         super().__init__()
-        self.a=a
-        self.b=b
-        self.c=c
-        self.minima = np.array([[0,0]])
-    
+        self.a = a
+        self.b = b
+        self.c = c
+        self.minima = np.array([[0, 0]])
+
+    def __str__(self):
+        return "Ackley's function"
+
     def apply(self, x):
         d = x.shape[-1]
-        
-        arg1 = -self.b * np.sqrt(1/d) * np.linalg.norm(x,axis=-1)
-        arg2 = (1/d) * np.sum(np.cos(self.c * x), axis=-1)
-        
+
+        arg1 = -self.b * np.sqrt(1 / d) * np.linalg.norm(x, axis=-1)
+        arg2 = (1 / d) * np.sum(np.cos(self.c * x), axis=-1)
+
         return -self.a * np.exp(arg1) - np.exp(arg2) + self.a + np.e
 
 
@@ -539,20 +581,23 @@ class Ackley_multimodal(cbx_objective):
 
     """
 
-    def __init__(self, alpha = None, z = None):
+    def __init__(self, alpha=None, z=None):
         super().__init__()
-        self.alpha = alpha if alpha else [1.]
+        self.alpha = alpha if alpha else [1.0]
         self.z = z if z else np.zeros((len(self.alpha), 1))
         self.V = Ackley()
         self.minima = self.z
         self.num_terms = len(self.alpha)
-        
+
+    def __str__(self):
+        return "Multimodal Ackley's function"
+
     def apply(self, x):
-        y = np.ones(x.shape[0:-1]   )
+        y = np.ones(x.shape[0:-1])
         for i in range(self.num_terms):
-            y *= self.V(self.alpha[i] * (x - self.z[i,:]))
+            y *= self.V(self.alpha[i] * (x - self.z[i, :]))
         return y
-        
+
 
 # def test2d(x):
 #     return np.cos(x.T[0])+np.sin(x.T[1])
@@ -563,9 +608,12 @@ class accelerated_sinus(cbx_objective):
         super().__init__()
         self.a = a
 
+    def __str__(self):
+        return "Accelerated Sinus function"
+
     def apply(self, x):
         x = np.linalg.norm(x, axis=-1)
-        return np.sin((self.a * x)/(1+x*x)).squeeze() + 1
+        return np.sin((self.a * x) / (1 + x * x)).squeeze() + 1
 
 
 class nd_sinus(cbx_objective):
@@ -573,25 +621,29 @@ class nd_sinus(cbx_objective):
         super().__init__()
         self.a = a
 
-    def apply(self, x):
-        
-        x = 0.3*x
-        z = 1/x.shape[-1] * np.linalg.norm(x,axis=-1)**2
-        
-        
-        res = (np.sin(z) + 1) * (x[...,0]**4 - x[...,0]**2 + 1)
-        return res.squeeze() 
+    def __str__(self):
+        return "Multidimensionsal Sinus function"
 
-  
-class p_4th_order(cbx_objective):
-    def __init__(self,):
-        super().__init__()
-        
     def apply(self, x):
-        n =  x
-        
-        res = (np.sum(n**4,axis=-1) - np.sum(n**2,axis=-1) + 1)
-        return res.squeeze() 
+
+        x = 0.3 * x
+        z = 1 / x.shape[-1] * np.linalg.norm(x, axis=-1) ** 2
+
+        res = (np.sin(z) + 1) * (x[..., 0] ** 4 - x[..., 0] ** 2 + 1)
+        return res.squeeze()
+
+
+class p_4th_order(cbx_objective):
+    def __init__(
+        self,
+    ):
+        super().__init__()
+
+    def apply(self, x):
+        n = x
+
+        res = np.sum(n**4, axis=-1) - np.sum(n**2, axis=-1) + 1
+        return res.squeeze()
 
 
 class Quadratic(cbx_objective):
@@ -599,54 +651,71 @@ class Quadratic(cbx_objective):
         super().__init__()
         self.alpha = alpha
 
-    def apply(self, x):
-        return np.linalg.norm(self.alpha*x, axis=-1)**2
+    def __str__(self):
+        return "Quadratic function"
 
-    
+    def apply(self, x):
+        return np.linalg.norm(self.alpha * x, axis=-1) ** 2
+
+
 class Banana(cbx_objective):
     def __init__(self, m=0, sigma=0.5, sigma_prior=2):
         super().__init__()
         self.m = m
         self.sigma = sigma
         self.sigma_prior = sigma_prior
-    
+
+    def __str__(self):
+        return "Banana function"
+
     def apply(self, x):
-        G = ((x[...,1]-1)**2-(x[...,0]-2.5) -1)
-        Phi = 0.5/(self.sigma**2)*(G - self.m)**2
-        return Phi + 0.5/(self.sigma_prior**2)*np.linalg.norm(x,axis=-1)**2
+        G = (x[..., 1] - 1) ** 2 - (x[..., 0] - 2.5) - 1
+        Phi = 0.5 / (self.sigma**2) * (G - self.m) ** 2
+        return Phi + 0.5 / (self.sigma_prior**2) * np.linalg.norm(x, axis=-1) ** 2
 
 
 class Bimodal(cbx_objective):
     def __init__(self, a=None, b=None):
         super().__init__()
-        self.a = a if a else [1., 1.5]
+        self.a = a if a else [1.0, 1.5]
         self.b = b if b else [-1.2, -0.7]
-    
+
+    def __str__(self):
+        return "Bimodal function"
+
     def apply(self, x):
         a = self.a
-        b = self.b         
-        ret = -np.log(np.exp(-((x[...,0]-a[0])**2 + (x[...,1]-a[1])**2/0.2)) \
-                      + 0.5*np.exp( -(x[...,0]-b[0])**2/8 - (x[...,1]-b[1])**2/0.5 ))
+        b = self.b
+        ret = -np.log(
+            np.exp(-((x[..., 0] - a[0]) ** 2 + (x[..., 1] - a[1]) ** 2 / 0.2))
+            + 0.5
+            * np.exp(-((x[..., 0] - b[0]) ** 2) / 8 - (x[..., 1] - b[1]) ** 2 / 0.5)
+        )
         return ret
-        
+
 
 class Unimodal(cbx_objective):
-    def __init__(self, a = None):
+    def __init__(self, a=None):
         super().__init__()
         self.a = a if a else [-1.2, -0.7]
-    
+
+    def __str__(self):
+        return "Unimodal function"
+
     def apply(self, x):
         a = self.a
-        ret = -np.log(0.5*np.exp( -(x[...,0]-a[0])**2/8 - (x[...,1]-a[1])**2/0.5 ))
-        
+        ret = -np.log(
+            0.5 * np.exp(-((x[..., 0] - a[0]) ** 2) / 8 - (x[..., 1] - a[1]) ** 2 / 0.5)
+        )
+
         return ret
-    
+
 
 class Bukin6(cbx_objective):
     r"""Bukin's function 6
 
     Bunkin's sixth function is a function with many local minima and one global minimum. It is defined as
-    
+
     .. math::
 
         f(x,y) = 100\sqrt{|y - 0.01x^2|} + 0.01|x + 10|,
@@ -657,11 +726,11 @@ class Bukin6(cbx_objective):
     ----------
     None
 
-    
+
     Global minima
     -------------
     - :math:`f(x,y) = 0` at :math:`(x,y) = (0,0)`
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -697,7 +766,7 @@ class Bukin6(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
@@ -710,19 +779,27 @@ class Bukin6(cbx_objective):
     .. [1] https://www.sfu.ca/~ssurjano/bukin6.html
 
     """
-    def __init__(self,):
+
+    def __init__(
+        self,
+    ):
         super().__init__()
         self.minima = np.array([[0, 0]])
-    
+
+    def __str__(self):
+        return "Bukin's function 6"
+
     def apply(self, x):
-        return 100 * np.sqrt(np.abs(x[...,1] - 0.01 * x[...,0]**2)) + 0.01 * np.abs(x[...,0] + 10)
-    
+        return 100 * np.sqrt(np.abs(x[..., 1] - 0.01 * x[..., 0] ** 2)) + 0.01 * np.abs(
+            x[..., 0] + 10
+        )
+
 
 class cross_in_tray(cbx_objective):
     r"""Cross-In-Tray function
 
     The Cross-In-Tray function is a function with many local minima and one global minimum [1]_. It is defined as
-    
+
     .. math::
 
         f(x,y) = -0.0001 \left( \left| \sin(x) \sin(y) \exp \left( \left| 100 - \frac{\sqrt{x^2 + y^2}}{\pi} \right| \right) + 1 \right| + 1 \right)^0.1,
@@ -733,14 +810,14 @@ class cross_in_tray(cbx_objective):
     ----------
     None
 
-    
+
     Global minima
     -------------
     - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (1.34941, 1.34941)`
     - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (-1.34941, -1.34941)`
     - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (1.34941, -1.34941)`
     - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (-1.34941, 1.34941)`
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -776,7 +853,7 @@ class cross_in_tray(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=20)
@@ -784,7 +861,7 @@ class cross_in_tray(cbx_objective):
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-        
+
     References
     ----------
     .. [1] https://www.sfu.ca/~ssurjano/crossit.html
@@ -792,17 +869,40 @@ class cross_in_tray(cbx_objective):
 
     def __init__(self):
         super().__init__()
-        self.minima = np.array([[1.34941, 1.34941], [-1.34941, 1.34941], [1.34941, -1.34941], [-1.34941, -1.34941]])
+        self.minima = np.array(
+            [
+                [1.34941, 1.34941],
+                [-1.34941, 1.34941],
+                [1.34941, -1.34941],
+                [-1.34941, -1.34941],
+            ]
+        )
+
+    def __str__(self):
+        return "Cross-In-Tray function"
 
     def apply(self, x):
-        return -0.0001 * (np.abs(np.sin(x[...,0]) * np.sin(x[...,1]) * np.exp(np.abs(100 - np.sqrt(x[...,0]**2 + x[...,1]**2)/np.pi))) + 1)**0.1
-    
+        return (
+            -0.0001
+            * (
+                np.abs(
+                    np.sin(x[..., 0])
+                    * np.sin(x[..., 1])
+                    * np.exp(
+                        np.abs(100 - np.sqrt(x[..., 0] ** 2 + x[..., 1] ** 2) / np.pi)
+                    )
+                )
+                + 1
+            )
+            ** 0.1
+        )
+
 
 class Easom(cbx_objective):
     r"""Easom
 
     The Easom function is a function with many local minima and one global minimum [1]_ . It is defined as
-    
+
     .. math::
 
         f(x,y) = -\cos(x) \cos(y) \exp \left( -\left( x - \pi \right)^2 - \left( y - \pi \right)^2 \right).
@@ -812,11 +912,11 @@ class Easom(cbx_objective):
     ----------
     None
 
-    
+
     Global minima
     -------------
     - :math:`f(x,y) = -1` at :math:`(x,y) = (\pi, \pi)`
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -852,7 +952,7 @@ class Easom(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
@@ -860,7 +960,7 @@ class Easom(cbx_objective):
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-        
+
     References
     ----------
     .. [1] https://www.sfu.ca/~ssurjano/easom.html
@@ -870,16 +970,22 @@ class Easom(cbx_objective):
         super().__init__()
         self.minima = np.array([[np.pi, np.pi]])
 
+    def __str__(self):
+        return "Easom function"
+
     def apply(self, x):
-        return -np.cos(x[...,0]) * np.cos(x[...,1]) * np.exp(-((x[...,0] - np.pi)**2 + (x[...,1] - np.pi)**2))
-    
+        return (
+            -np.cos(x[..., 0])
+            * np.cos(x[..., 1])
+            * np.exp(-((x[..., 0] - np.pi) ** 2 + (x[..., 1] - np.pi) ** 2))
+        )
 
 
 class drop_wave(cbx_objective):
     r"""Drop Wave
 
     The Drop Wave function is a function with many local minima and one global minimum [1]_. It is defined as
-    
+
     .. math::
 
         f(x,y) = -\left( 1 + \cos(12 \sqrt{x^2 + y^2}) \right) \exp \left( -\frac{x^2 + y^2}{2(1 + 0.001(x^2 + y^2))} \right),
@@ -890,11 +996,11 @@ class drop_wave(cbx_objective):
     ----------
     None
 
-    
+
     Global minima
     -------------
     - :math:`f(x,y) = -1` at :math:`(x,y) = (0, 0)`
-    
+
     Examples
     --------
     >>> import numpy as np
@@ -930,26 +1036,34 @@ class drop_wave(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
-        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-    
+
     References
     ----------
     .. [1] https://www.sfu.ca/~ssurjano/drop.html
     """
+
     def __init__(self):
         super().__init__()
         self.minima = np.array([[0, 0]])
 
+    def __str__(self):
+        return "Drop Wave function"
+
     def apply(self, x):
-        return -(1 + np.cos(12 * np.sqrt(x[...,0]**2 + x[...,1]**2))) * np.exp(-0.5 * (x[...,0]**2 + x[...,1]**2) / (1 + 0.001 * (x[...,0]**2 + x[...,1]**2)))
-    
+        return -(1 + np.cos(12 * np.sqrt(x[..., 0] ** 2 + x[..., 1] ** 2))) * np.exp(
+            -0.5
+            * (x[..., 0] ** 2 + x[..., 1] ** 2)
+            / (1 + 0.001 * (x[..., 0] ** 2 + x[..., 1] ** 2))
+        )
+
 
 class Holder_table(cbx_objective):
     r"""Holder table
@@ -985,7 +1099,7 @@ class Holder_table(cbx_objective):
 
     Visualization
     -------------
-    
+
     .. plot::
 
         import matplotlib.pyplot as plt
@@ -1009,15 +1123,15 @@ class Holder_table(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=20)
-        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-    
+
     References
     ----------
     .. [1] https://www.sfu.ca/~ssurjano/holdertable.html
@@ -1026,10 +1140,24 @@ class Holder_table(cbx_objective):
 
     def __init__(self):
         super().__init__()
-        self.minima = np.array([[8.05502, 9.66459], [-8.05502, 9.66459], [8.05502, -9.66459], [-8.05502, -9.66459]])
+        self.minima = np.array(
+            [
+                [8.05502, 9.66459],
+                [-8.05502, 9.66459],
+                [8.05502, -9.66459],
+                [-8.05502, -9.66459],
+            ]
+        )
+
+    def __str__(self):
+        return "Holder table function"
 
     def apply(self, x):
-        return -np.abs(np.sin(x[...,0]) * np.cos(x[...,1]) * np.exp(np.abs(1 - np.sqrt(x[...,0]**2 + x[...,1]**2) / np.pi)))
+        return -np.abs(
+            np.sin(x[..., 0])
+            * np.cos(x[..., 1])
+            * np.exp(np.abs(1 - np.sqrt(x[..., 0] ** 2 + x[..., 1] ** 2) / np.pi))
+        )
 
 
 class snowflake(cbx_objective):
@@ -1040,7 +1168,7 @@ class snowflake(cbx_objective):
 
 
     .. math::
-    
+
         f(r, \phi) = \min\{f_0(r,\phi), f_1(r,\phi), f_2(r,\phi), 0.8\},
 
 
@@ -1050,9 +1178,9 @@ class snowflake(cbx_objective):
 
         f_i(r,\phi) = r^8 - r^4 + \sqrt{\left|\cos\left(\phi + i\cdot \frac{\pi}{3}\right)\right|} \cdot r^{0.3}.
 
-        
+
     This function was introduced to showcase the performance of the PolarCBO algorithm [2]_.
-    
+
     Parameters
     ----------
     alpha : float
@@ -1061,7 +1189,7 @@ class snowflake(cbx_objective):
 
     Visualization
     -------------
-    
+
     .. plot::
 
         import matplotlib.pyplot as plt
@@ -1085,15 +1213,15 @@ class snowflake(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.get_cmap('Blues'))
         ax0.contour(cs, colors='white', alpha=0.2)
         ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='blue', marker='x', s=20)
-        ax1.plot_surface(XX,YY,ZZ, cmap=cm.get_cmap('Blues')) 
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.get_cmap('Blues'))
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-    
+
     References
     ----------
     .. [1] https://github.com/TimRoith/polarcbo
@@ -1101,34 +1229,40 @@ class snowflake(cbx_objective):
 
     """
 
-
-    def __init__(self, alpha=.5):
+    def __init__(self, alpha=0.5):
         super().__init__()
         self.alpha = alpha
-        self.minima_polar = np.array([[ 1/self.alpha * 0.5**(1/4), np.pi/2],
-                                      [-1/self.alpha * 0.5**(1/4), np.pi/2], 
-                                      [ 1/self.alpha * 0.5**(1/4), np.pi/2 - np.pi/3], 
-                                      [-1/self.alpha * 0.5**(1/4), np.pi/2 - np.pi/3],
-                                      [ 1/self.alpha * 0.5**(1/4), np.pi/2 - 2*np.pi/3],
-                                      [-1/self.alpha * 0.5**(1/4), np.pi/2 - 2*np.pi/3]])
-        
+        self.minima_polar = np.array(
+            [
+                [1 / self.alpha * 0.5 ** (1 / 4), np.pi / 2],
+                [-1 / self.alpha * 0.5 ** (1 / 4), np.pi / 2],
+                [1 / self.alpha * 0.5 ** (1 / 4), np.pi / 2 - np.pi / 3],
+                [-1 / self.alpha * 0.5 ** (1 / 4), np.pi / 2 - np.pi / 3],
+                [1 / self.alpha * 0.5 ** (1 / 4), np.pi / 2 - 2 * np.pi / 3],
+                [-1 / self.alpha * 0.5 ** (1 / 4), np.pi / 2 - 2 * np.pi / 3],
+            ]
+        )
+
         self.minima = np.zeros((self.minima_polar.shape))
         self.minima[:, 0] = self.minima_polar[:, 0] * np.cos(self.minima_polar[:, 1])
         self.minima[:, 1] = self.minima_polar[:, 0] * np.sin(self.minima_polar[:, 1])
 
+    def __str__(self):
+        return "Snowflake function"
+
     def apply(self, x):
-        x = self.alpha * x 
-        r = np.linalg.norm(x,axis=-1)
-        phi = np.arctan2(x[...,1], x[...,0])
-        
+        x = self.alpha * x
+        r = np.linalg.norm(x, axis=-1)
+        phi = np.arctan2(x[..., 1], x[..., 0])
+
         res = np.ones((x.shape[:-1]))
-        for psi in [0, np.pi/3, np.pi*2/3]:
-            g = r**8 - r**4 + np.abs(np.cos(phi+psi))**0.5*r**0.3
+        for psi in [0, np.pi / 3, np.pi * 2 / 3]:
+            g = r**8 - r**4 + np.abs(np.cos(phi + psi)) ** 0.5 * r**0.3
             res = np.minimum(res, g)
-        
-        res = np.minimum(res, .8)
+
+        res = np.minimum(res, 0.8)
         return res
-                
+
 
 class eggholder(cbx_objective):
     r"""Eggholder
@@ -1136,11 +1270,11 @@ class eggholder(cbx_objective):
     The Eggholder function is a function with many local minima and one global minimum [1]_. It is defined as
 
     .. math::
-    
+
         f(x,y) = -(y+47)\cdot \sin\left(\sqrt{\left|y+x/2+47\right|}\right) - x\cdot \sin\left(\sqrt{\left|x-y-47\right|}\right).
 
-        
-    
+
+
     Parameters
     ----------
     None
@@ -1149,7 +1283,7 @@ class eggholder(cbx_objective):
 
     Visualization
     -------------
-    
+
     .. plot::
 
         import matplotlib.pyplot as plt
@@ -1173,15 +1307,15 @@ class eggholder(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ,30, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=30)
-        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-    
+
     References
     ----------
     .. [1] https://www.sfu.ca/~ssurjano/egg.html
@@ -1192,9 +1326,14 @@ class eggholder(cbx_objective):
         super().__init__()
         self.minima = np.array([[512, 404.2319]])
 
+    def __str__(self):
+        return "Eggholder function"
+
     def apply(self, x):
-        return -(x[...,1] + 47) * np.sin(np.sqrt(np.abs(x[...,1] + x[...,0]/2 + 47))) - x[...,0] * np.sin(np.sqrt(np.abs(x[...,0] - (x[...,1] + 47))))
-    
+        return -(x[..., 1] + 47) * np.sin(
+            np.sqrt(np.abs(x[..., 1] + x[..., 0] / 2 + 47))
+        ) - x[..., 0] * np.sin(np.sqrt(np.abs(x[..., 0] - (x[..., 1] + 47))))
+
 
 class Michalewicz(cbx_objective):
     r"""Michalewicz
@@ -1202,13 +1341,13 @@ class Michalewicz(cbx_objective):
     Michalewicz function is a function with many local minima and one global minimum [1]_. It is defined as
 
     .. math::
-    
+
         f(x,y) = -\sum_{i=1}^d \sin(x_i)\cdot \left(\sin\left(\frac{i x_i^2}{\pi}\right)\right)^{2m},
 
     where :math:`d` denotes the dimension and the parameter :math:`m` is ususally chosen as :math:`m=10`.
 
-        
-    
+
+
     Parameters
     ----------
     None
@@ -1217,7 +1356,7 @@ class Michalewicz(cbx_objective):
 
     Visualization
     -------------
-    
+
     .. plot::
 
         import matplotlib.pyplot as plt
@@ -1241,34 +1380,41 @@ class Michalewicz(cbx_objective):
         ZZ = f(Z)
 
         ax0 = fig.add_subplot(121)
-        ax1 = fig.add_subplot(122, projection='3d')	
+        ax1 = fig.add_subplot(122, projection='3d')
         cs = ax0.contourf(XX,YY,ZZ,30, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
         ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=30)
-        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
 
-    
+
     References
     ----------
     .. [1] https://www.sfu.ca/~ssurjano/michal.html
 
     """
-        
+
     def __init__(self, d=2, m=10):
         super().__init__()
         self.d = d
         self.m = m
-        
+
         if d == 2:
             self.minima = np.array([[2.2029, 1.5708]])
         else:
             self.minima = None
 
+    def __str__(self):
+        return "Michalewicz function"
+
     def apply(self, x):
         arr_shape = np.ones(x.ndim, dtype=int)
         arr_shape[-1] = x.shape[-1]
         arr = np.arange(x.shape[-1]).reshape(arr_shape) + 1
-        return -np.sum(np.sin(x) * np.sin(arr * (x**2)/np.pi)**(2*self.m), axis=-1)
+        return -np.sum(
+            np.sin(x) * np.sin(arr * (x**2) / np.pi) ** (2 * self.m), axis=-1
+        )
 
+
+# %%
