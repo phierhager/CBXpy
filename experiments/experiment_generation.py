@@ -4,6 +4,7 @@ from objective_dispatcher import dispatch_objective, get_available_objectives
 from dynamics_dispatcher import dispatch_dynamics
 from config import ExperimentConfig, ConfigContainerDynamic
 from typing import Any, Generator
+import math
 
 
 def load_config(filename: str) -> Any:
@@ -29,16 +30,29 @@ def range_generator(param_config: dict) -> list:  #
         list: A list of values.
     """
     start, end = param_config["range"]
-    step = param_config["step"]
     values = []
-    for x in list(
-        float(start) + step * i for i in range(int((end - start) / step) + 1)
-    ):
-        if isinstance(step, int):
-            values.append(round(x))
-        else:
-            values.append(round(x, 4))
-    return values
+    if "mode" in param_config and param_config["mode"] == "log":
+        log_start = math.log10(start)
+        log_end = math.log10(end)
+        step = (log_end - log_start) / (param_config["num_points"] - 1)
+
+        for i in range(param_config["num_points"]):
+            x = math.pow(10, log_start + step * i)
+            if isinstance(start, int):
+                values.append(round(x)) if round(x) not in values else None
+            else:
+                values.append(round(x, 4)) if round(x) not in values else None
+        return values
+    else:
+        step = param_config["step"]
+        for x in list(
+            float(start) + step * i for i in range(int((end - start) / step) + 1)
+        ):
+            if isinstance(step, int):
+                values.append(round(x))
+            else:
+                values.append(round(x, 4))
+        return values
 
 
 def _dict_product_generator(d: dict) -> Generator[dict, Any, Any]:
@@ -71,7 +85,7 @@ def _generate_configs_dynamics(config_dynamics: dict) -> dict:
     """
     config = {}
     for cfg_name, value in config_dynamics.items():
-        if isinstance(value, dict) and "range" in value and "step" in value:
+        if isinstance(value, dict) and "range" in value:
             config[cfg_name] = range_generator(value)
         elif cfg_name == "name_f":  # dispatch and parse keyword all for function
             if value == "all":
