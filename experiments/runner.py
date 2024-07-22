@@ -103,25 +103,40 @@ class Runner:
                     config_container_dynamic
                 )  # only if not yet done
             if config_container_dynamic.f not in self.local_minimum_functions.keys():
-                _prom_f = cbx.utils.objective_handling._promote_objective(
-                    config_container_dynamic.f,
-                    config_container_dynamic.config_dynamic["f_dim"],
-                )
-                local_min_x_values = np.squeeze(
-                    np.apply_along_axis(
-                        lambda x, _prom_f=_prom_f: optimize.fmin(
-                            _prom_f, x, disp=False
-                        ),
-                        axis=2,
-                        arr=self.starting_positions,
+                if (
+                    str(config_container_dynamic.f) == "Ackley's function"
+                    and config_container_dynamic.config_dynamic["d"] == 2
+                ):
+                    self.local_minimum_functions["Ackley's function"] = 3.57
+                elif (
+                    str(config_container_dynamic.f) == "Rastrigin's function"
+                    and config_container_dynamic.config_dynamic["d"] == 2
+                ):
+                    self.local_minimum_functions["Rastrigin's function"] = 20.25
+                else:
+                    raise NotImplementedError(
+                        "The nearest local minimum for this function and dimension is not yet implemented."
                     )
-                )
-                self.local_minimum_functions[config_container_dynamic.f] = np.squeeze(
-                    np.min(
-                        np.apply_along_axis(_prom_f, axis=2, arr=local_min_x_values),
-                        axis=1,
-                    )
-                )
+                # ---- OLD CODE implementing success by calculating the nearest local minimum ----
+                # _prom_f = cbx.utils.objective_handling._promote_objective(
+                #     config_container_dynamic.f,
+                #     config_container_dynamic.config_dynamic["f_dim"],
+                # )
+                # local_min_x_values = np.squeeze(
+                #     np.apply_along_axis(
+                #         lambda x, _prom_f=_prom_f: optimize.fmin(
+                #             _prom_f, x, disp=False
+                #         ),
+                #         axis=2,
+                #         arr=self.starting_positions,
+                #     )
+                # )
+                # self.local_minimum_functions[config_container_dynamic.f] = np.squeeze(
+                #     np.min(
+                #         np.apply_along_axis(_prom_f, axis=2, arr=local_min_x_values),
+                #         axis=1,
+                #     )
+                # )
             result = self.run_dynamic_config(config_container_dynamic, opt_dict)
             results_dynamic.append(result)
         return results_dynamic
@@ -149,7 +164,7 @@ class Runner:
         time, best_x = optimize_wrapper(dynamic, **opt_dict)  # optimize
         best_f = f(best_x)
         success = np.where(
-            best_f < self.local_minimum_functions[config_container_dynamic.f], 1, 0
+            best_f < self.local_minimum_functions[str(config_container_dynamic.f)], 1, 0
         )
         return ResultDynamicRun(
             name_dynamic=config_container_dynamic.name_dynamic,
@@ -160,8 +175,7 @@ class Runner:
             best_f=best_f,
             best_x=best_x,
             success=success,
-            local_min_f_values=self.local_minimum_functions[config_container_dynamic.f],
-            starting_positions=self.starting_positions,
+            # starting_positions=self.starting_positions,
         )
 
     def set_starting_positions(self, config_container_dynamic: ConfigContainerDynamic):
