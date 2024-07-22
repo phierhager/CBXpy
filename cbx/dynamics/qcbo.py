@@ -35,7 +35,7 @@ class QCBO(CBO):
 
     def __init__(self, f, **kwargs) -> None:
         super().__init__(f, **kwargs)
-        self.set_correction("no_correction")
+        # self.set_correction("no_correction")
         self.set_noise(
             isotropic_noise(
                 norm=np.linalg.norm,

@@ -14,8 +14,7 @@ class ResultDynamicRun:
     best_f: np.ndarray
     best_x: np.ndarray
     success: np.ndarray  # binary array
-    local_min_f_values: np.ndarray
-    starting_positions: np.ndarray
+    # starting_positions: np.ndarray
 
     def to_list(self) -> list:
         """Convert the result to a list.
@@ -31,8 +30,7 @@ class ResultDynamicRun:
             self.best_f.tolist(),
             self.best_x.tolist(),
             self.success.tolist(),
-            self.local_min_f_values.tolist(),
-            self.starting_positions.tolist(),
+            # self.starting_positions.tolist(),
             str(self.config_dynamic),
         ]
 
@@ -84,8 +82,7 @@ class ExperimentResult:
                 "Relative Function Value": rel_f_value,
                 "Best Solution": result.best_x[min_i],
                 "Success": result.success,
-                "Local Minimum Function Values": result.local_min_f_values,
-                "Starting Positions": result.starting_positions,
+                # "Starting Positions": result.starting_positions,
             }
             config_data.update(
                 result.config_dynamic
@@ -128,14 +125,11 @@ class ExperimentResult:
                     success=np.array(
                         eval(row[7])
                     ),  # Convert string representation of list to numpy array
-                    local_min_f_values=np.array(
-                        eval(row[8])
-                    ),  # Convert string representation of list to numpy array
-                    starting_positions=np.array(
-                        eval(row[9])
-                    ),  # Convert string representation of list to numpy array
+                    # starting_positions=np.array(
+                    #     eval(row[8])
+                    # ),  # Convert string representation of list to numpy array
                     config_dynamic=eval(
-                        row[10]
+                        row[8]
                     ),  # Convert string representation of dict to dict
                 )
                 results_dynamic.append(result_dynamic)
