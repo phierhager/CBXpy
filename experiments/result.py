@@ -154,7 +154,6 @@ class ExperimentResult:
                     "best_f",
                     "best_x",
                     "success",
-                    "local_min_f",
                     "config_dynamic",
                 ]
             )
