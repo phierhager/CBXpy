@@ -98,10 +98,6 @@ class Runner:
         for config_container_dynamic in tqdm(
             self.experiment_config.config_container_dynamic_gen
         ):
-            if self.starting_positions is None:
-                self.set_starting_positions(
-                    config_container_dynamic
-                )  # only if not yet done
             if config_container_dynamic.f not in self.local_minimum_functions.keys():
                 if (
                     str(config_container_dynamic.f) == "Ackley's function"
@@ -112,12 +108,12 @@ class Runner:
                     str(config_container_dynamic.f) == "Rastrigin's function"
                     and config_container_dynamic.config_dynamic["d"] == 2
                 ):
-                    self.local_minimum_functions["Rastrigin's function"] = 20.25
+                    self.local_minimum_functions["Rastrigin's function"] = 1
                 else:
                     raise NotImplementedError(
                         "The nearest local minimum for this function and dimension is not yet implemented."
                     )
-                # ---- OLD CODE implementing success by calculating the nearest local minimum ----
+                # ---- TODO OLD CODE implementing success by calculating the nearest local minimum ----
                 # _prom_f = cbx.utils.objective_handling._promote_objective(
                 #     config_container_dynamic.f,
                 #     config_container_dynamic.config_dynamic["f_dim"],
@@ -157,9 +153,10 @@ class Runner:
         """
         f = config_container_dynamic.f
         config_dynamic = config_container_dynamic.config_dynamic
+        # this also pops the x from the config_dynamic in the config_container_dynamic
         config_dynamic.pop("x")
-        dynamic = config_container_dynamic.dynamic(
-            f, x=self.starting_positions, **config_dynamic
+        dynamic = cbx.dynamics.CBO(
+            cbx.objectives.Rastrigin(), x=self.starting_positions, **config_dynamic
         )
         time, best_x = optimize_wrapper(dynamic, **opt_dict)  # optimize
         best_f = f(best_x)
@@ -175,24 +172,6 @@ class Runner:
             best_f=best_f,
             best_x=best_x,
             success=success,
-            # starting_positions=self.starting_positions,
-        )
-
-    def set_starting_positions(self, config_container_dynamic: ConfigContainerDynamic):
-        """Set the starting positions.
-
-        Args:
-            config_container_dynamic (ConfigContainerDynamic): The dynamic configuration.
-        """
-        shape = (
-            config_container_dynamic.config_dynamic["M"],
-            config_container_dynamic.config_dynamic["N"],
-            config_container_dynamic.config_dynamic["d"],
-        )
-        self.starting_positions = np.random.uniform(
-            config_container_dynamic.config_dynamic["x_min"],
-            config_container_dynamic.config_dynamic["x_max"],
-            shape,
         )
 
     def get_opt_dict(self) -> dict:
