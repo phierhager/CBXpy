@@ -99,15 +99,9 @@ class Runner:
             self.experiment_config.config_container_dynamic_gen
         ):
             if config_container_dynamic.f not in self.local_minimum_functions.keys():
-                if (
-                    str(config_container_dynamic.f) == "Ackley's function"
-                    and config_container_dynamic.config_dynamic["d"] == 2
-                ):
-                    self.local_minimum_functions["Ackley's function"] = 3.57
-                elif (
-                    str(config_container_dynamic.f) == "Rastrigin's function"
-                    and config_container_dynamic.config_dynamic["d"] == 2
-                ):
+                if str(config_container_dynamic.f) == "Ackley's function":
+                    self.local_minimum_functions["Ackley's function"] = 2.181
+                elif str(config_container_dynamic.f) == "Rastrigin's function":
                     self.local_minimum_functions["Rastrigin's function"] = 1
                 else:
                     raise NotImplementedError(
@@ -155,8 +149,8 @@ class Runner:
         config_dynamic = config_container_dynamic.config_dynamic
         # this also pops the x from the config_dynamic in the config_container_dynamic
         config_dynamic.pop("x")
-        dynamic = cbx.dynamics.CBO(
-            cbx.objectives.Rastrigin(), x=self.starting_positions, **config_dynamic
+        dynamic = config_container_dynamic.dynamic(
+            f, x=self.starting_positions, **config_dynamic
         )
         time, best_x = optimize_wrapper(dynamic, **opt_dict)  # optimize
         best_f = f(best_x)
