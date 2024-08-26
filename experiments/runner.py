@@ -63,7 +63,9 @@ class Runner:
             results_dynamic=[],
         )
         self.result_dir = result_dir
-        self.starting_positions = None  # will be set in the first run to sth
+        self.starting_positions = (
+            None  # TODO: THere was a bug here, so it is not initialized now
+        )
         self.local_minimum_functions = (
             {}
         )  # will be filled for every funnction calculate nearest local minimum with scipy
