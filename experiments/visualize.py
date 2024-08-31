@@ -41,15 +41,18 @@ def plot_bar_plot_comparing_dynamics_to_rel_value(df: pd.DataFrame):
 
 
 def plot_N(df: pd.DataFrame):
-    df["Success Probability"] = df["Success"].apply(np.mean)
+    # df["Success Probability"] = df["Success"].apply(np.mean)
+    df = df.explode('Success')
     dfm = df.melt(
         id_vars=["Dynamic Name", "Function Name", "N"],
-        value_vars=["Success Probability"],
+        value_vars=["Success"],
         var_name="variable",
-        value_name="success_prob",
+        value_name="success",
     )
     sns.set_theme(style="white")
-    sns.lineplot(data=dfm, x="N", y="success_prob", hue="Dynamic Name", marker="o")
+    print(dfm.head())
+    print(set(dfm["Dynamic Name"]))
+    sns.lineplot(data=dfm, x="N", y="success", hue="Dynamic Name", marker="o", errorbar="ci")
     d = df.iloc[0].loc["d"]
     max_it = df.iloc[0].loc["max_it"]
     alpha = df.iloc[0].loc["alpha"]
@@ -59,6 +62,7 @@ def plot_N(df: pd.DataFrame):
     plt.title("Success Probability for d={}, max_it={}, alpha={}, dt={}, sigma={}, and {}".format(d, max_it, alpha, dt, sigma, f))
     plt.xlabel("N")
     plt.ylabel("Success Probability")
+    plt.ylim(bottom=0)
     plt.savefig(f"results/images/{df.iloc[0].loc["Experiment Name"]}__plot_n.png")
     
 def plot_sigma(df: pd.DataFrame):
@@ -438,24 +442,6 @@ def plot_sigma_lamda_success_heat_dynamics(df: pd.DataFrame):
     # Calculate success probability
     df["Success Probability"] = df["Success"].apply(np.mean)
 
-    # Prepare the data for cbo
-    df_cbo = df[df["Dynamic Name"] == "cbo"]
-    dfm_cbo = df_cbo.melt(
-        id_vars=["Dynamic Name", "sigma", "Function Name", "lamda"],
-        value_vars=["Success Probability"],
-        var_name="variable",
-        value_name="success_prob",
-    ).pivot(index="lamda", columns="sigma", values="success_prob")
-
-    # Prepare the data for qcbo
-    df_qcbo = df[df["Dynamic Name"] == "qcbo"]
-    dfm_qcbo = df_qcbo.melt(
-        id_vars=["Dynamic Name", "sigma", "Function Name", "lamda"],
-        value_vars=["Success Probability"],
-        var_name="variable",
-        value_name="success_prob",
-    ).pivot(index="lamda", columns="sigma", values="success_prob")
-
     # get the parameters from the configuration
     d = df.iloc[0].loc["d"]
     max_it = df.iloc[0].loc["max_it"]
@@ -464,23 +450,36 @@ def plot_sigma_lamda_success_heat_dynamics(df: pd.DataFrame):
     f = df.iloc[0].loc["Function Name"]
 
     # Plot the data side by side
+    dynamic_names = set(df["Dynamic Name"])
     sns.set_theme(style="whitegrid")
-    _, axes = plt.subplots(1, 2, figsize=(20, 7), sharey=True)
+    _, axes = plt.subplots(1, len(dynamic_names), figsize=(20, 7), sharey=True)
 
-    sns.heatmap(dfm_cbo, ax=axes[0], cbar=True)
-    axes[0].set_title(
-        f"Success Probability for cbo and {f} at d={d}, max_it={max_it}, alpha={alpha}, dt={dt}"
-    )
-    axes[0].invert_yaxis()
-    axes[0].set_yticklabels(axes[0].get_yticklabels(), rotation=45)
-
-    sns.heatmap(dfm_qcbo, ax=axes[1], cbar=True)
-    axes[1].set_title(
-        f"Success Probability for qcbo and {f} at d={d}, max_it={max_it}, alpha={alpha}, dt={dt}"
-    )
-    axes[1].invert_yaxis()
+    for i, dynamic_name in enumerate(dynamic_names):
+        df_dynamic = df[df["Dynamic Name"] == dynamic_name]
+        dfm = df_dynamic.melt(
+            id_vars=["Dynamic Name", "sigma", "Function Name", "lamda"],
+            value_vars=["Success Probability"],
+            var_name="variable",
+            value_name="success_prob",
+        ).pivot(index="lamda", columns="sigma", values="success_prob")
+        ax = axes[i] if isinstance(axes, np.ndarray) else axes # TODO: Really np ndarrayß
+        sns.heatmap(dfm, ax=ax, cbar=True)
+        
+        ax.plot(
+            x:=np.linspace(0, 20, 100),
+            y:=(a:=2.1) * x,
+            color="green",
+            linewidth=2,
+            label=f"Exponential Function, factor {a}",
+        )
+        ax.plot
+        ax.set_title(
+            f"Success Probability for {dynamic_name} and {f} at d={d}, max_it={max_it}, alpha={alpha}, dt={dt}"
+        )
+        ax.invert_yaxis()
+        ax.set_yticklabels(ax.get_yticklabels(), rotation=45)
+        
     plt.tight_layout()
-    
     plt.savefig(f"results/images/{df.iloc[0].loc["Experiment Name"]}__sigma_lamda_success_heat_dynamics.png")
 
 
@@ -537,7 +536,7 @@ def plot_sigma_N_success_heat_dynamics(df: pd.DataFrame):
 
 MODE = typing.Literal["sigma_lamda", "sigma_N"]
 ALPHA_D = typing.Literal["alpha", "d"]
-def plot_sigma_success_heat_subplots(df: pd.DataFrame, mode: MODE = "sigma_lamda", alpha_d: ALPHA_D = "alpha", alpha_values = [1, 10, 100, 1000, 10000], d_values = [2, 5, 10]):
+def plot_sigma_success_heat_subplots(df: pd.DataFrame, mode: MODE = "sigma_lamda", alpha_d: ALPHA_D = "alpha"):
     """Plot the success probability against sigma for cbo and qcbo dynamic names."""
     # Calculate success probability
     df["Success Probability"] = df["Success"].apply(np.mean)
@@ -547,9 +546,11 @@ def plot_sigma_success_heat_subplots(df: pd.DataFrame, mode: MODE = "sigma_lamda
     elif mode == "sigma_N":
         melt_vars = ["Dynamic Name", "sigma", "Function Name", "N"]
         pivot_vars = ["N", "sigma"]
-
+    alpha_values = set(df["alpha"])
+    d_values = set(df["d"])
+    dynamic_names = set(df["Dynamic Name"])
     dfs = {}
-    for dynamic in ["cbo", "qcbo"]:
+    for dynamic in dynamic_names:
         if alpha_d == "alpha":
             alpha_df = {}
             for alpha in alpha_values:
@@ -578,7 +579,9 @@ def plot_sigma_success_heat_subplots(df: pd.DataFrame, mode: MODE = "sigma_lamda
     # Plot the data side by side
     sns.set_theme(style="whitegrid")
     num_rows = len(alpha_values) if alpha_d == "alpha" else len(d_values)
-    fig, axes = plt.subplots(num_rows, 2, figsize=(20, 30), sharey=True, sharex=True)
+    fig, axes = plt.subplots(num_rows, len(dynamic_names), figsize=(20, 30), sharey=True, sharex=True)
+    if len(dynamic_names) == 1:
+        axes = np.expand_dims(axes, axis=1)
     
     d = df.iloc[0].loc["d"]
     max_it = df.iloc[0].loc["max_it"]
@@ -593,7 +596,7 @@ def plot_sigma_success_heat_subplots(df: pd.DataFrame, mode: MODE = "sigma_lamda
         title_str += f", N={n}"
     
 
-    for i, dynamic in enumerate(["cbo", "qcbo"]):
+    for i, dynamic in enumerate(dynamic_names):
         if alpha_d == "alpha":
             for j, alpha in enumerate(alpha_values):
                 sns.heatmap(dfs[dynamic][f"{alpha}"], ax=axes[j][i], cbar=True)
@@ -635,13 +638,13 @@ if __name__ == "__main__":
 
     # concatenate the dataframes
     if len(sys.argv) >= 3:
-        for i in range(2, len(sys.argv) - 1):
+        for i in range(2, len(sys.argv)):
             experiment_result = ExperimentResult.from_csv(sys.argv[i])
             df_extra = experiment_result.to_dataframe()
-            df = pd.concat(df, df_extra, ignore_index=True)
+            df = pd.concat((df, df_extra), ignore_index=True)
     
-    # plot_sigma_success_heat_subplots(df, mode="sigma_N", alpha_d="d", d_values=[10,15,20])	
-    plot_N(df)
+    plot_sigma_success_heat_subplots(df, mode="sigma_lamda", alpha_d="alpha")	
+    # plot_N(df)
     # plot_sigma(df)
 
     # plot_sigma_N_success_heat_dynamics(df)
