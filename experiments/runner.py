@@ -105,6 +105,10 @@ class Runner:
                     self.local_minimum_functions["Ackley's function"] = 2.181
                 elif str(config_container_dynamic.f) == "Rastrigin's function":
                     self.local_minimum_functions["Rastrigin's function"] = 1
+                elif str(config_container_dynamic.f) == "W function":
+                    self.local_minimum_functions["W function"] = (
+                        0.1  # TODO: Watch out if it gets changed!
+                    )
                 else:
                     raise NotImplementedError(
                         "The nearest local minimum for this function and dimension is not yet implemented."
