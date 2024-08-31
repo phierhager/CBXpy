@@ -22,7 +22,25 @@ from cbx.objectives import (
     snowflake,
     eggholder,
     Michalewicz,
+    cbx_objective,
 )
+import numpy as np
+
+
+class WFunction(cbx_objective):
+    """W function, that has on local minima at (1,1,...) and one global minimum at (-1, -1, ...)"""
+
+    def __init__(self, d=2):
+        super().__init__()
+        self.d = d
+        self.minima = np.array([[0, 0]])
+
+    def __str__(self):
+        return "W function"
+
+    def apply(self, x):
+        linear_term = 0.1 * np.sum(x, axis=-1)
+        return np.sum((x**2 - 1) ** 2, axis=-1) + linear_term
 
 
 def dispatch_objective(func_name: str) -> object:
@@ -39,6 +57,8 @@ def dispatch_objective(func_name: str) -> object:
     """
     if func_name == "three_hump_camel":
         return three_hump_camel()
+    elif func_name == "wfunction":
+        return WFunction()
     elif func_name == "mccormick":
         return McCormick()
     elif func_name == "rosenbrock":
