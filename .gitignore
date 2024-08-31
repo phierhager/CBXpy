@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# all yaml and json and npy and csv files
+*.yaml
+*.yml
+*.json
+*.npy
+*.csv
+
 # vscode
 .vscode/
 
