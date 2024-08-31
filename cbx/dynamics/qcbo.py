@@ -1,6 +1,6 @@
 from . import CBO
 from ..utils.particle_init import init_particles
-from ..noise import noise, isotropic_noise
+from ..noise import noise, isotropic_noise, anisotropic_noise
 
 
 from typing import Callable
@@ -35,17 +35,13 @@ class QCBO(CBO):
 
     def __init__(self, f, **kwargs) -> None:
         super().__init__(f, **kwargs)
-        # self.set_correction("no_correction")
         self.set_noise(
-            isotropic_noise(
+            anisotropic_noise(
                 norm=np.linalg.norm,
                 sampler=lambda _, scale, size: np.random.exponential(
                     scale=scale, size=size
                 ),
             )
-            # for testing purposes we want to have different noise
-            if kwargs.get("noise") is None
-            else kwargs.get("noise")
         )
 
     # overwrites init_x in CBXDynamic
