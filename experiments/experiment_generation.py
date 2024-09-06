@@ -157,7 +157,7 @@ def create_experiment_config(file_path: str) -> ExperimentConfig:
     """
     cfg = load_config(file_path)
     config_container_dynamic_gen = generate_dynamics_product(cfg)
-    experiment_name = cfg["name"]
+    experiment_name = file_path.split("/")[-1].split("\\")[-1].split(".")[0]
     experiment_config = ExperimentConfig(
         experiment_name=experiment_name,
         config_container_dynamic_gen=config_container_dynamic_gen,
