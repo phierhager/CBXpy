@@ -9,6 +9,9 @@ __pycache__/
 *.json
 *.npy
 *.csv
+*.gz
+*-ubyte
+*.html
 
 # vscode
 .vscode/
