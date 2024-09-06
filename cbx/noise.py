@@ -1,7 +1,8 @@
 """
 This module implements the noise methods for cbx dynamics
 """
-from typing import Callable
+
+from typing import Callable, Literal
 from numpy.typing import ArrayLike
 from numpy.random import normal
 import numpy as np
@@ -15,15 +16,14 @@ def get_noise(name: str, dyn):
     elif name == 'covariance' or name == 'sampling':
         return covariance_noise(norm=dyn.norm, sampler=dyn.sampler)
     else:
-        raise NotImplementedError('Noise model {} not implemented'.format(name))
+        raise NotImplementedError("Noise model {} not implemented".format(name))
 
 
 class noise:
-    def __init__(self, 
-                 norm: Callable = None, 
-                 sampler: Callable = None):
+    def __init__(self, norm: Callable = None, sampler: Callable = None):
         self.norm = norm if norm is not None else np.linalg.norm
         self.sampler = sampler if sampler is not None else normal
+
     def __call__(self, dyn):
         """
         This function returns the noise vector for a given dynamic object. This is the function that is called in the dynamic object.
@@ -34,19 +34,22 @@ class noise:
         ----------
         dyn
             The dynamic object
-        
+
         Returns
         -------
         ArrayLike
             The noise vector
         """
-        raise NotImplementedError('Base class does not implement __call__')
-    
-    def sample(self, ):
+        raise NotImplementedError("Base class does not implement __call__")
+
+    def sample(
+        self,
+    ):
         """
         This function performs the sampling of the noise vector. Each specific noise model must implement this function.
         """
-        raise NotImplementedError('Base class does not implement sample')
+        raise NotImplementedError("Base class does not implement sample")
+
 
 class isotropic_noise(noise):
     r"""
@@ -60,26 +63,25 @@ class isotropic_noise(noise):
 
 
     Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-    
+
     Parameters
     ----------
     None
-    
+
     Note
     ----
-    Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
-    which motivates the name **isotropic**. 
+    Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension,
+    which motivates the name **isotropic**.
     """
-    def __init__(self, 
-                 norm: Callable = None, 
-                 sampler: Callable = None):
-         super().__init__(norm = norm, sampler = sampler)
+
+    def __init__(self, norm: Callable = None, sampler: Callable = None):
+        super().__init__(norm=norm, sampler=sampler)
 
     def __call__(self, dyn) -> ArrayLike:
         return np.sqrt(dyn.dt) * self.sample(dyn.drift)
 
     def sample(self, drift) -> ArrayLike:
-        r'''
+        r"""
 
         This function implements the isotropic noise model. From the drift :math:`d = x - c(x)`,
         the noise vector is computed as
@@ -90,11 +92,11 @@ class isotropic_noise(noise):
 
 
         Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-        
+
         Parameters
         ----------
         None
-        
+
         Note
         ----
         Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
@@ -106,8 +108,35 @@ class isotropic_noise(noise):
 
 
 class anisotropic_noise(noise):
+    r"""
+    This class implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
+    the noise vector is computed as
+
+    .. math::
+
+        n_{m,n} = \sqrt{dt}\cdot d_{m,n} \cdot \xi.
+
+    Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
+
+    Returns:
+        numpy.ndarray: The generated noise.
+
+    Note
+    ----
+    The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension,
+    which motivates the name **anisotropic**.
+    """
+
+    def __init__(self, norm: Callable = None, sampler: Callable = None):
+        super().__init__(norm=norm, sampler=sampler)
+
+    def __call__(self, dyn) -> ArrayLike:
+        return np.sqrt(dyn.dt) * self.sample(dyn.drift)
+
+    def sample(self, drift: ArrayLike) -> ArrayLike:
         r"""
-        This class implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
+
+        This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
         the noise vector is computed as
 
         .. math::
@@ -121,50 +150,21 @@ class anisotropic_noise(noise):
 
         Note
         ----
-        The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension, 
+        The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension,
         which motivates the name **anisotropic**.
         """
-
-        def __init__(self, 
-                     norm: Callable = None,
-                     sampler: Callable = None):
-            super().__init__(norm = norm, sampler = sampler)
-
-        def __call__(self, dyn) -> ArrayLike:
-            return np.sqrt(dyn.dt) * self.sample(dyn.drift)
-
-        def sample(self, drift: ArrayLike) -> ArrayLike:
-            r"""
-
-            This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
-            the noise vector is computed as
-
-            .. math::
-
-                n_{m,n} = \sqrt{dt}\cdot d_{m,n} \cdot \xi.
-
-            Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-
-            Returns:
-                numpy.ndarray: The generated noise.
-
-            Note
-            ----
-            The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension, 
-            which motivates the name **anisotropic**.
-            """
 
             return self.sampler(size = drift.shape) * drift
         
 class covariance_noise(noise):
-        r"""
+    r"""
 
-        This class implements the covariance noise model. Given the covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}` of the ensemble,
-        the noise vector is computed as
+    This class implements the covariance noise model. Given the covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}` of the ensemble,
+    the noise vector is computed as
 
-        .. math::
+    .. math::
 
-            n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
+        n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
 
         Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
         """
@@ -194,22 +194,22 @@ class covariance_noise(noise):
             Given the covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}` of the ensemble,
             the noise vector is computed as
 
-            .. math::
+        .. math::
 
-                n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
+            n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
 
-            Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
+        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
 
-            Parameters
-            ----------
-                drift (ArrayLike): The drift of the ensemble.
-                Cov_sqrt (ArrayLike): The square root of the covariance matrix of the ensemble.
+        Parameters
+        ----------
+            drift (ArrayLike): The drift of the ensemble.
+            Cov_sqrt (ArrayLike): The square root of the covariance matrix of the ensemble.
 
-            Returns
-            -------
-                ArrayLike: The covariance noise.
-            
-            """
+        Returns
+        -------
+            ArrayLike: The covariance noise.
+
+        """
 
             z = self.sampler(size = drift.shape) 
             return self.apply_cov_sqrt(Cov_sqrt, z)
@@ -218,10 +218,10 @@ class covariance_noise(noise):
             """
             Applies the square root of the covariance matrix to the input tensor.
 
-            Parameters
-            ----------
-                Cov_sqrt (ArrayLike): The square root of the covariance matrix.
-                z (ArrayLike): The input tensor of shape (batch_size, num_features, seq_length).
+        Parameters
+        ----------
+            Cov_sqrt (ArrayLike): The square root of the covariance matrix.
+            z (ArrayLike): The input tensor of shape (batch_size, num_features, seq_length).
 
             Returns:
                 ArrayLike: The output of the matrix-vector product.
